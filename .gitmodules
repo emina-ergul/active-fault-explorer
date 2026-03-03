@@ -1,0 +1,3 @@
+[submodule "backend/data/gem"]
+	path = backend/data/gem
+	url = https://github.com/GEMScienceTools/gem-global-active-faults.git

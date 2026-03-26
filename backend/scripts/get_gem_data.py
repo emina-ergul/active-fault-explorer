@@ -2,7 +2,7 @@ from pathlib import Path
 import geopandas as gpd
 
 try:
-    OUTPUT_DIR = Path("backend/data/raw")
+    OUTPUT_DIR = Path("backend/data/raw/faults")
     gem_data = gpd.read_file("backend/data/gem/geojson/gem_active_faults.geojson")
     gem_data = gem_data.to_crs(epsg=4326)
 

@@ -1,9 +1,9 @@
 from pathlib import Path
-import json
 from shapely.geometry import Point
+import geopandas as gpd
+import json
 
 RAW_DIR = Path("backend/data/raw/earthquakes")
-OUTPUT_DIR = Path("backend/data/processed/earthquakes")
 
 
 def transform_earthquake_data():
@@ -42,5 +42,9 @@ def transform_earthquake_data():
                 print(row)
                 transformed_data.append(row)
 
+        gdf = gpd.GeoDataFrame(transformed_data, geometry="geometry", crs="EPSG:4326")
 
-transform_earthquake_data()
+        output_file = Path("backend/data/processed/earthquakes/earthquakes.geojson")
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+
+        gdf.to_file(output_file, driver="GeoJSON")

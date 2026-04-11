@@ -23,8 +23,19 @@ Using the GEM foundations global active faults data I will extract the data, cre
 
 - Since I will be using Leaflet, I convert the gem geojson data to a standard coordinate system of WGS84
 
+- difference between WSG84 and EPSG4326: WSG is 3D data for defining the earths shape, EPSG is used to define coordinate systems
+
+- The transform part of an ETL pipeline is to clean the data, by removing duplicates or invalid data
+
+- A point is a geometry that represetns a single coordinate with an x, y and sometimes z value e.g. Point(1, 2). These can be used in spatial queries
+
+- GeodataFrame is like a normal data frame for tabular data but has additional columns for geographical data like crs and points
+
 
 ### Resources
 - <https://github.com/GEMScienceTools/gem-global-active-faults>
+- <https://earthquake.usgs.gov/fdsnws/event/1/>
 - <https://www.atlassian.com/git/tutorials/git-submodule>
 - <https://geopandas.org/en/stable/docs/user_guide/io.html>
+- <https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_file.html>
+- <https://shapely.readthedocs.io/en/2.1.2/reference/shapely.Point.html>

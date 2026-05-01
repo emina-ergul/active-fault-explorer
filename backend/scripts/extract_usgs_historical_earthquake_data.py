@@ -27,7 +27,7 @@ def get_data_year():
                 continue
             else:
                 print(data)
-                with open(OUTPUT_DIR / f"historic_quakes_{year}.geojson", "w") as f:
+                with open(OUTPUT_DIR / f"{year}_earthquakes.geojson", "w") as f:
                     json.dump(data, f)
         except Exception as e:
             print(f"Failed to fetch data for year {year}: {res.status_code}: {e}")

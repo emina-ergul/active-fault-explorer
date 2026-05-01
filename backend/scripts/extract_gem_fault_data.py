@@ -13,6 +13,6 @@ try:
     print(gem_data.crs)
     print(gem_data.geom_type.value_counts())
 
-    gem_data.to_file(OUTPUT_DIR / "gem_faults.geojson", driver="GeoJSON")
+    gem_data.to_file(OUTPUT_DIR / "faults.geojson", driver="GeoJSON")
 except Exception as e:
     print(f"Error loading GEM data: {e}")

@@ -4,7 +4,12 @@ import os
 
 load_dotenv()
 
-engine = create_engine(os.getenv("DB_URL"))
+db_url = os.getenv("DB_URL")
+
+if not db_url:
+    raise ValueError("database url not set")
+
+engine = create_engine(db_url)
 
 with engine.connect() as conn:
     with open("backend/database/schema.sql") as f:

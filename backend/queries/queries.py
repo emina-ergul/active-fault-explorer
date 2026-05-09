@@ -12,7 +12,13 @@ def get_distance(quake_id: str):
             e.geometry::geography,
             f.geometry::geography
         ) AS distance_m
-        FROM earthquakes e, faults f
+        FROM earthquakes e
+        JOIN faults f
+        ON ST_DWithin(
+                 e.geometry::geography,
+                 f.geometry::geography,
+                 100000
+        )
         WHERE e.id = :quake_id
         ORDER BY distance_m ASC
         LIMIT 1

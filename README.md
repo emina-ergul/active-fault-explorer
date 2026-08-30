@@ -1,9 +1,12 @@
 # active-fault-explorer project overview
-This project will be able to analyse and visualise seismic hazard risks using real world data for active faults.
+This project will be able to analyse and visualise seismic hazard risks using real world data for active faults and earthquakes.
 
 Ideally I want to make it so that you can identify active faults, see historical earthquake data, and estimate risk based on fault proximity and earthquake frequency and magnitude. This will be done using leaflet to craete an interactive map with filters and a heatmap overlay.
 
-Using the GEM foundations global active faults data I will extract the data, create an ETL (extract transform load) pipeline that will convert and clean data as needed and push it to a POSTGIS database. Then create a backend and frontend to query and visualise the data as planned.
+Using the GEM foundations global active faults repo, and USGS Earthquake API, I will extract data, create an ETL (extract transform load) pipeline that will convert and clean data as needed and push it to a POSTGIS database. Then create a backend and frontend to query and visualise the data as planned.
+
+Basic flow:
+data -> ETL -> PostGIS -> backedn spatial queries db -> frontend
 
 ## Aims of project:
 - Become familiar with basic geopandas
@@ -11,27 +14,37 @@ Using the GEM foundations global active faults data I will extract the data, cre
 - Process/transform data in an ETL pipeline
 - Set up/understand POSTGIS
 - Set up FastAPI backend
-- spatial queries
+- Learn about and implement spatial queries
 - Become familair with Leaflet
 - Create a risk heatmap overlay
 - Create a basic frontend
 - dockerise
 
+------------------------------------------------------------------------
+
+### Database
+
+- Two tables, one for earthqaukes and a table for faults.
+
+- asserting that my database is setup correctly using "docker exec" to execute psql queries in the running container, like  "SELECT COUNT(*) FROM earthquakes" to assert the database filled out.
+
 ### Learning Points
 
-- Geojson is a text representation of vector data, for spatial data such as shapes lines or boundaries, using coordinates
+- Geojson is a text representation of vector data for spatial data such as shapes lines or boundaries, using coordinates
 
-- Since I will be using Leaflet, I convert the gem geojson data to a standard coordinate system of WGS84 using EPSG4326
+- Since I will be using Leaflet, I convert the gem geojson data to a standard coordinate system of WGS84 using EPSG4326, which uses standard latitude and longitude.
 
-- The transform part of an ETL pipeline is to clean the data, by removing duplicates or invalid data
+- The transform part of an ETL pipeline is to clean the data, by removing duplicates, invalid data or just for general formatting.
 
-- A point is a geometry that represetns a single location with an x, y and sometimes z value e.g. Point(1, 2). These can be used in spatial queries
+- A Point is a geometry that represetns a single location with an x, y and sometimes z value e.g. Point(1, 2). These can be used in spatial queries and in my project will represent earthqaukes.
 
-- A LineString is a number of Points that connect to represent a feature like roads or rivers from which length can be derived. I will be using Linestrings for faults and Points for earthquakes
+- A LineString is a number of Points that connect to represent a feature like roads or rivers from which length can be derived. I will be using Linestrings for faults.
 
 - GeodataFrame is like a normal data frame for tabular data but has additional columns for geographical data like crs and points
 
-- POSTGIS usually stores data as Well-Known Binary (WKB) format which stores geometry data as binary strings
+- PostIS stores data as geometry to allow for spatial operations
+
+
 
 
 ### Resources

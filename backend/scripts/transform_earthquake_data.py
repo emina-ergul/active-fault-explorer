@@ -1,14 +1,16 @@
 from pathlib import Path
+from datetime import datetime
 from shapely.geometry import Point
 import geopandas as gpd
 import json
 
-RAW_DIR = Path("backend/data/raw/earthquakes")
+raw_dir = Path("backend/data/raw/earthquakes/")
+raw_dir.parent.mkdir(parents=True, exist_ok=True)
 
 
 def transform_earthquake_data():
     transformed_data = []
-    files = list(RAW_DIR.glob("historic_quakes_*.geojson"))
+    files = list(raw_dir.glob("*_earthquakes.geojson"))
 
     for file in files:
         with open(file) as f:
@@ -17,30 +19,30 @@ def transform_earthquake_data():
         features = data.get("features", [])
 
         for feature in features:
-            # print(feature)
             properties = feature.get("properties", {})
             geometry = feature.get("geometry", {})
             coordinates = geometry.get("coordinates", None)
 
-            # print(coordinates)
+            if properties.get("type") != "earthquake":
+                continue
 
             if not coordinates or properties.get("mag") is None:
                 continue
 
-            if properties.get("type") == "earthquake":
+            if properties.get("time") is None:
+                continue
 
-                lon, lat, depth = coordinates
+            lon, lat, depth = coordinates
 
-                row = {
-                    "id": feature.get("id"),
-                    "magnitude": properties.get("mag"),
-                    "place": properties.get("place"),
-                    "time": properties.get("time"),
-                    "depth": depth,
-                    "geometry": Point(lon, lat),
-                }
-                print(row)
-                transformed_data.append(row)
+            row = {
+                "id": feature.get("id"),
+                "magnitude": properties.get("mag"),
+                "place": properties.get("place"),
+                "time": datetime.fromtimestamp(properties.get("time") / 1000),
+                "depth_km": depth,
+                "geometry": Point(lon, lat),
+            }
+            transformed_data.append(row)
 
         gdf = gpd.GeoDataFrame(transformed_data, geometry="geometry", crs="EPSG:4326")
 
@@ -48,3 +50,6 @@ def transform_earthquake_data():
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
         gdf.to_file(output_file, driver="GeoJSON")
+
+
+transform_earthquake_data()

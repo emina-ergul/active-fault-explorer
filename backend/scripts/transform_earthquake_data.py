@@ -52,4 +52,5 @@ def transform_earthquake_data():
         gdf.to_file(output_file, driver="GeoJSON")
 
 
-transform_earthquake_data()
+if __name__ == "__main__":
+    transform_earthquake_data()

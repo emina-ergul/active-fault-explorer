@@ -9,10 +9,10 @@ init_db:
 
 extract:
 	python -m backend.scripts.extract_usgs_historical_earthquake_data
-	python -m backend.scripts.extract_gem_fault_data
 
 transform:
 	python -m backend.scripts.transform_earthquake_data
+	python -m backend.scripts.transform_fault_data
 
 load:
 	python -m backend.scripts.load_data_postgis
@@ -21,6 +21,10 @@ etl:
 	make extract
 	make transform
 	make load
+
+# update_gem:
+# 	git submodule update --remote
+# 	make etl
 
 setup:
 	make init_db

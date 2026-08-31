@@ -1,19 +1,12 @@
 from fastapi import FastAPI
-
-from backend.app.services.earthquake_service import get_all_earthquakes
+from backend.app.endpoints import earthquake_endpoints, fault_endpoints
 
 app = FastAPI()
+
+app.include_router(earthquake_endpoints.router)
+app.include_router(fault_endpoints.router)
 
 
 @app.get("/")
 def root():
     return {"running fault explorer"}
-
-
-@app.get("/all-earthquakes")
-def all_earthquakes():
-    try:
-        earthquakes = get_all_earthquakes()
-        return {"earthquakes": earthquakes}
-    except ValueError as e:
-        return {"error": str(e)}

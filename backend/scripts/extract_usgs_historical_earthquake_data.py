@@ -3,8 +3,9 @@ from pathlib import Path
 from datetime import datetime
 import requests
 
-BASE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query"
-OUTPUT_DIR = Path("backend/data/raw/earthquakes")
+api_url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
+output_dir = Path("backend/data/raw/earthquakes")
+output_dir.mkdir(parents=True, exist_ok=True)
 
 
 def get_data_year():
@@ -18,7 +19,7 @@ def get_data_year():
             "limit": 20000,
         }
         try:
-            res = requests.get(BASE_URL, params=params)
+            res = requests.get(api_url, params=params)
             res.raise_for_status()
             data = res.json()
 
@@ -27,10 +28,11 @@ def get_data_year():
                 continue
             else:
                 print(data)
-                with open(OUTPUT_DIR / f"{year}_earthquakes.geojson", "w") as f:
+                with open(output_dir / f"{year}_earthquakes.geojson", "w") as f:
                     json.dump(data, f)
         except Exception as e:
-            print(f"Failed to fetch data for year {year}: {res.status_code}: {e}")
+            error = f"Failed to fetch data for year {year}: {res.status_code}: {e}"
+            raise ValueError(error)
 
 
 get_data_year()

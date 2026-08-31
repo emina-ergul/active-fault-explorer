@@ -4,7 +4,8 @@ import os
 
 load_dotenv()
 
-db_url = os.getenv("DB_URL")
+db_password = os.getenv("POSTGRES_PASSWORD")
+db_url = f"postgresql://postgres:{db_password}@localhost:5432/seismic"
 
 if not db_url:
     raise ValueError("database url not set")

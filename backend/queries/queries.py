@@ -64,6 +64,9 @@ def get_all_faults(limit: int):
 
 
 def get_earthquake_by_id(quake_id: str):
+    if not quake_id:
+        raise ValueError("Quake ID is missing")
+
     query = text("""
     SELECT 
         id,
@@ -77,15 +80,49 @@ def get_earthquake_by_id(quake_id: str):
     """)
 
     with engine.connect() as conn:
-        res = conn.execute(query, {"quake_id": quake_id}).one()
+        res = conn.execute(query, {"quake_id": quake_id}).fetchall()
 
         if not res:
             raise ValueError(f"No earthquakes with id {quake_id} found")
 
-        earthquake = dict(res._mapping)
-        earthquake["geometry"] = json.loads(earthquake["geometry"])
+        for row in res:
+            earthquake = dict(row._mapping)
+            earthquake["geometry"] = json.loads(earthquake["geometry"])
 
-    return earthquake
+        return earthquake
+
+
+def get_fault_by_id(fault_id: str):
+    if not fault_id:
+        raise ValueError("Fault ID is missing")
+
+    query = text("""
+    SELECT
+        catalog_id,
+        catalog_name,
+        name,
+        slip_type,
+        last_movement,
+        net_slip_rate_most_likely_mm,
+        net_slip_rate_min_mm,
+        net_slip_rate_max_mm,
+        ST_AsGeoJSON(geometry) AS geometry
+    FROM faults
+    WHERE catalog_id = :fault_id
+    """)
+
+    with engine.connect() as conn:
+        res = conn.execute(query, {"fault_id": fault_id}).fetchall()
+
+        if not res:
+            raise ValueError(f"No faults with id {fault_id} found")
+
+        faults = [dict(row._mapping) for row in res]
+
+        for fault in faults:
+            fault["geometry"] = json.loads(fault["geometry"])
+
+    return faults
 
 
 # def get_fault_info(fault_id: str):

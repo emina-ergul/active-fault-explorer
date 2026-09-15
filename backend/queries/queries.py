@@ -7,20 +7,21 @@ from backend.database.init_db import engine
 now = datetime.datetime.now(timezone.utc)
 
 
-def get_all_earthquakes():
+def get_all_earthquakes(magnitude: float):
     query = text("""
-    SELECT
-        id,
-        magnitude,
-        place,
-        time,
-        depth_km,
-        ST_AsGeoJSON(geometry) AS geometry
-    FROM earthquakes
+        SELECT
+            id,
+            magnitude,
+            place,
+            time,
+            depth_km,
+            ST_AsGeoJSON(geometry) AS geometry
+        FROM earthquakes
+        WHERE magnitude >= :magnitude
     """)
 
     with engine.connect() as conn:
-        res = conn.execute(query).fetchall()
+        res = conn.execute(query, {"magnitude": magnitude}).fetchall()
 
         if not res:
             raise ValueError("No earthquakes found")
@@ -35,18 +36,18 @@ def get_all_earthquakes():
 
 def get_all_faults(limit: int):
     query = text("""
-    SELECT
-        catalog_id,
-        catalog_name,
-        name,
-        slip_type,
-        last_movement,
-        net_slip_rate_most_likely_mm,
-        net_slip_rate_min_mm,
-        net_slip_rate_max_mm,
-        ST_AsGeoJSON(geometry) AS geometry
-    FROM faults
-    LIMIT :limit
+        SELECT
+            catalog_id,
+            catalog_name,
+            name,
+            slip_type,
+            last_movement,
+            net_slip_rate_most_likely_mm,
+            net_slip_rate_min_mm,
+            net_slip_rate_max_mm,
+            ST_AsGeoJSON(geometry) AS geometry
+        FROM faults
+        LIMIT :limit
     """)
 
     with engine.connect() as conn:
@@ -68,15 +69,15 @@ def get_earthquake_by_id(quake_id: str):
         raise ValueError("Quake ID is missing")
 
     query = text("""
-    SELECT 
-        id,
-        magnitude,
-        place,
-        time,
-        depth_km,
-        ST_AsGeoJSON(geometry) AS geometry
-    FROM earthquakes
-    WHERE id = :quake_id
+        SELECT 
+            id,
+            magnitude,
+            place,
+            time,
+            depth_km,
+            ST_AsGeoJSON(geometry) AS geometry
+        FROM earthquakes
+        WHERE id = :quake_id
     """)
 
     with engine.connect() as conn:
@@ -89,7 +90,7 @@ def get_earthquake_by_id(quake_id: str):
             earthquake = dict(row._mapping)
             earthquake["geometry"] = json.loads(earthquake["geometry"])
 
-        return earthquake
+    return earthquake
 
 
 def get_fault_by_id(fault_id: str):
@@ -97,18 +98,18 @@ def get_fault_by_id(fault_id: str):
         raise ValueError("Fault ID is missing")
 
     query = text("""
-    SELECT
-        catalog_id,
-        catalog_name,
-        name,
-        slip_type,
-        last_movement,
-        net_slip_rate_most_likely_mm,
-        net_slip_rate_min_mm,
-        net_slip_rate_max_mm,
-        ST_AsGeoJSON(geometry) AS geometry
-    FROM faults
-    WHERE catalog_id = :fault_id
+        SELECT
+            catalog_id,
+            catalog_name,
+            name,
+            slip_type,
+            last_movement,
+            net_slip_rate_most_likely_mm,
+            net_slip_rate_min_mm,
+            net_slip_rate_max_mm,
+            ST_AsGeoJSON(geometry) AS geometry
+        FROM faults
+        WHERE catalog_id = :fault_id
     """)
 
     with engine.connect() as conn:
@@ -125,63 +126,49 @@ def get_fault_by_id(fault_id: str):
     return faults
 
 
-# def get_fault_info(fault_id: str):
-#     query = text("""
-#     SELECT
-#         catalog_id,
-#         name,
-#         last_movement,
-#         slip_type,
-#         net_slip_rate,
-#         notes,
-#         ST_Union(geometry) AS geometry
-#     FROM faults
-#     WHERE catalog_id = :fault_id
-#     GROUP BY
-#         catalog_id,
-#         name,
-#         last_movement,
-#         slip_type,
-#         net_slip_rate,
-#         notes
-# """)
+def get_all_quakes_within_fault_distance(fault_id: str, distance_km: int):
+    if not fault_id:
+        raise ValueError("Fault ID is missing")
 
-#     with engine.connect() as conn:
-#         res = conn.execute(query, {"fault_id": fault_id}).fetchall()
-#         print("$$$$$$$$$$$", res)
+    query = text("""
+        SELECT
+            e.id AS earthquake_id,
+            e.magnitude AS earthquake_magnitude,
+            e.place AS earthquake_place,
+            e.time AS earthquake_time,
+            e.depth_km AS earthquake_depth_km,
+            f.catalog_id AS fault_catalog_id,
+            f.catalog_name AS fault_catalog_name,
+            f.slip_type AS fault_slip_type,
+            f.last_movement AS fault_last_movement,
+            f.net_slip_rate_most_likely_mm AS fault_net_slip_rate_most_likely_mm,
+            ST_Distance(e.geometry::geography, f.geometry::geography) / 1000 AS distance_km_from_fault
+        FROM earthquakes e
+        JOIN faults f 
+        ON ST_DWithin(
+            e.geometry::geography, 
+            f.geometry::geography, 
+            :distance_km * 1000
+        )
+        WHERE f.catalog_id = :fault_id
+    """)
 
+    with engine.connect() as conn:
+        res = conn.execute(
+            query, {"fault_id": fault_id, "distance_km": distance_km}
+        ).fetchall()
 
-# def get_distance(quake_id: str):
-#     query = text("""
-#         SELECT
-#             e.id,
-#             f.name,
-#             f.catalog_id,
-#             f.last_movement,
-#             f.slip_type,
-#                  f.net_slip_rate,
-#             e.magnitude,
-#             ST_Distance(
-#             e.geometry::geography,
-#             f.geometry::geography
-#         ) AS distance_m
-#         FROM earthquakes e
-#         JOIN faults f
-#         ON ST_DWithin(
-#                  e.geometry::geography,
-#                  f.geometry::geography,
-#                  100000
-#         )
-#         WHERE e.id = :quake_id
-#         ORDER BY distance_m ASC
-#         LIMIT 10
-#     """)
+        if not res:
+            raise ValueError(
+                f"No earthquakes found within {distance_km} km of fault {fault_id}"
+            )
 
-#     with engine.connect() as conn:
-#         res = conn.execute(query, {"quake_id": quake_id}).fetchone()
-#         print("$$$$$$$$$$$", res)
+        earthquakes = [dict(row._mapping) for row in res]
 
+        for earthquake in earthquakes:
+            earthquake["distance_km_from_fault"] = round(
+                earthquake["distance_km_from_fault"], 1
+            )
+        #     earthquake["geometry"] = json.loads(earthquake["geometry"])
 
-# get_distance("us7000rlkk")
-# get_earthqauke_info("us7000rlkk")
-# get_fault_info("SA_410")
+    return earthquakes

@@ -7,7 +7,7 @@ from backend.database.init_db import engine
 now = datetime.datetime.now(timezone.utc)
 
 
-def get_all_earthquakes(magnitude: float):
+def get_all_earthquakes(magnitude: float, limit: int):
     query = text("""
         SELECT
             id,
@@ -18,10 +18,11 @@ def get_all_earthquakes(magnitude: float):
             ST_AsGeoJSON(geometry) AS geometry
         FROM earthquakes
         WHERE magnitude >= :magnitude
+        LIMIT :limit
     """)
 
     with engine.connect() as conn:
-        res = conn.execute(query, {"magnitude": magnitude}).fetchall()
+        res = conn.execute(query, {"magnitude": magnitude, "limit": limit}).fetchall()
 
         if not res:
             raise ValueError("No earthquakes found")

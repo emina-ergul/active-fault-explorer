@@ -10,9 +10,9 @@ router = APIRouter(prefix="/earthquakes", tags=["Earthquakes"])
 
 
 @router.get("/")
-def get_earthquakes(magnitude: float = 0.0):
+def get_earthquakes(magnitude: float = 0.0, limit: int = 2500):
     try:
-        res = get_all_earthquakes(magnitude)
+        res = get_all_earthquakes(magnitude, limit)
         return res
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

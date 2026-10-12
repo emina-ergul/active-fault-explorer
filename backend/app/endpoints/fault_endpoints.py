@@ -6,7 +6,7 @@ router = APIRouter(prefix="/faults", tags=["Faults"])
 
 
 @router.get("/")
-def get_faults(limit: int = 100, offset: int = 0):
+def get_faults(limit: int = 500, offset: int = 0):
     try:
         res = get_all_faults(limit=limit)
         return res

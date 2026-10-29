@@ -35,7 +35,7 @@ def get_all_earthquakes(magnitude: float, limit: int):
     return earthquakes
 
 
-def get_all_faults(limit: int):
+def get_all_faults(min_lon: float, min_lat: float, max_lon: float, max_lat: float):
     query = text("""
         SELECT
             id,
@@ -49,11 +49,19 @@ def get_all_faults(limit: int):
             net_slip_rate_max_mm,
             ST_AsGeoJSON(geometry) AS geometry
         FROM faults
-        LIMIT :limit
+        WHERE ST_Intersects(geometry, ST_MakeEnvelope(:min_lon, :min_lat, :max_lon, :max_lat, 4326))
     """)
 
     with engine.connect() as conn:
-        res = conn.execute(query, {"limit": limit}).fetchall()
+        res = conn.execute(
+            query,
+            {
+                "min_lon": min_lon,
+                "min_lat": min_lat,
+                "max_lon": max_lon,
+                "max_lat": max_lat,
+            },
+        ).fetchall()
 
         if not res:
             raise ValueError("No faults found")

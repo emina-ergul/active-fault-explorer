@@ -6,9 +6,9 @@ router = APIRouter(prefix="/faults", tags=["Faults"])
 
 
 @router.get("/")
-def get_faults(limit: int = 500, offset: int = 0):
+def get_faults():
     try:
-        res = get_all_faults(limit=limit)
+        res = get_all_faults(min_lon=-180, min_lat=-90, max_lon=180, max_lat=90)
         return res
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

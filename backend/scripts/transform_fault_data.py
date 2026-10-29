@@ -50,7 +50,7 @@ def transform_fault_data():
         ]
     ]
 
-    for i, row in gem_data.iterrows():
+    for _, row in gem_data.iterrows():
         if row["geometry"] is None:
             continue
 
@@ -77,6 +77,9 @@ def transform_fault_data():
             "geometry": row["geometry"],
         }
         transformed_data.append(row)
+
+    for i, row in enumerate(transformed_data, start=1):
+        row["id"] = i
 
     gdf = gpd.GeoDataFrame(transformed_data, geometry="geometry", crs="EPSG:4326")
 

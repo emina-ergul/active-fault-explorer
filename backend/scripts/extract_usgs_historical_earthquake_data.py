@@ -27,7 +27,6 @@ def get_data_year():
                 print(f"No data found for year {year}")
                 continue
             else:
-                print(data)
                 with open(output_dir / f"{year}_earthquakes.geojson", "w") as f:
                     json.dump(data, f)
         except Exception as e:

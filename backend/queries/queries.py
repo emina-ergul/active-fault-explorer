@@ -38,6 +38,7 @@ def get_all_earthquakes(magnitude: float, limit: int):
 def get_all_faults(limit: int):
     query = text("""
         SELECT
+            id,
             catalog_id,
             catalog_name,
             name,
@@ -94,12 +95,13 @@ def get_earthquake_by_id(quake_id: str):
     return earthquake
 
 
-def get_fault_by_id(fault_id: str):
+def get_fault_by_id(fault_id: str):  # catalog id
     if not fault_id:
         raise ValueError("Fault ID is missing")
 
     query = text("""
         SELECT
+            id,
             catalog_id,
             catalog_name,
             name,

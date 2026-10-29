@@ -17,7 +17,12 @@ def load_faults():
         lambda g: shapely.force_2d(g) if g is not None else None
     )  # this function makes the geomrtry 2d by removing the z coordinate because i already have depth field
 
-    gdf.to_postgis(name="faults", con=engine, if_exists="append")
+    gdf.to_postgis(
+        name="faults",
+        con=engine,
+        if_exists="replace",
+        index=False,
+    )
 
 
 if __name__ == "__main__":

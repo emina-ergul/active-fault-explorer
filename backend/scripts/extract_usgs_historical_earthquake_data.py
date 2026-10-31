@@ -8,7 +8,7 @@ output_dir = Path("backend/data/raw/earthquakes")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 
-def get_data_year():
+def get_earthquake_data_by_year():
     for year in range(2024, datetime.now().year):
         params = {
             "format": "geojson",
@@ -19,6 +19,7 @@ def get_data_year():
             "limit": 20000,
         }
         try:
+            print(f"Extracting historical earthquake data from year {year}...")
             res = requests.get(api_url, params=params)
             res.raise_for_status()
             data = res.json()
@@ -34,4 +35,4 @@ def get_data_year():
             raise ValueError(error)
 
 
-get_data_year()
+get_earthquake_data_by_year()

@@ -16,6 +16,8 @@ def transform_earthquake_data():
         with open(file) as f:
             data = json.load(f)
 
+        print(f"Transforming earthquake data from file: {file.name}...")
+
         features = data.get("features", [])
 
         for feature in features:

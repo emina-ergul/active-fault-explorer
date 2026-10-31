@@ -17,6 +17,8 @@ def transform_slip_rates(rates):
     net_slip_rate_min_mm = None
     net_slip_rate_max_mm = None
 
+    print("Cleaning slip rate values")
+
     if pd.isna(rates):
         return None, None, None
     else:
@@ -49,6 +51,8 @@ def transform_fault_data():
             "geometry",
         ]
     ]
+
+    print("Transforming fault data...")
 
     for _, row in gem_data.iterrows():
         if row["geometry"] is None:

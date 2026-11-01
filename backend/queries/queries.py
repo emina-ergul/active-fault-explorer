@@ -4,10 +4,12 @@ from datetime import timezone
 from sqlalchemy import text
 from backend.database.init_db import engine
 
-now = datetime.datetime.now(timezone.utc)
 
+def get_all_earthquakes(
+    start_year: str, end_year: str, min_magnitude: float, limit: int
+):
+    now = datetime.datetime.now(timezone.utc)
 
-def get_all_earthquakes(magnitude: float, limit: int):
     query = text("""
         SELECT
             id,
@@ -17,22 +19,36 @@ def get_all_earthquakes(magnitude: float, limit: int):
             depth_km,
             ST_AsGeoJSON(geometry) AS geometry
         FROM earthquakes
-        WHERE magnitude >= :magnitude
+        WHERE time >= :start_time AND time <= :end_time
+        AND time <= :now
+        AND magnitude >= :min_magnitude
+        ORDER BY time DESC
         LIMIT :limit
     """)
 
     with engine.connect() as conn:
-        res = conn.execute(query, {"magnitude": magnitude, "limit": limit}).fetchall()
+        res = conn.execute(
+            query,
+            {
+                "start_time": start_year,
+                "end_time": end_year,
+                "min_magnitude": min_magnitude,
+                "limit": limit,
+                "now": now,
+            },
+        ).fetchall()
 
-        if not res:
-            raise ValueError("No earthquakes found")
+        earthquakes = []
 
-        earthquakes = [dict(row._mapping) for row in res]
+        for row in res:
+            earthquake = dict(row._mapping)
 
-        for earthquake in earthquakes:
-            earthquake["geometry"] = json.loads(earthquake["geometry"])
+            if earthquake["geometry"]:
+                earthquake["geometry"] = json.loads(earthquake["geometry"])
 
-    return earthquakes
+            earthquakes.append(earthquake)
+
+        return earthquakes
 
 
 def get_all_faults(min_lon: float, min_lat: float, max_lon: float, max_lat: float):
@@ -63,15 +79,17 @@ def get_all_faults(min_lon: float, min_lat: float, max_lon: float, max_lat: floa
             },
         ).fetchall()
 
-        if not res:
-            raise ValueError("No faults found")
+        faults = []
 
-        faults = [dict(row._mapping) for row in res]
+        for row in res:
+            fault = dict(row._mapping)
 
-        for fault in faults:
-            fault["geometry"] = json.loads(fault["geometry"])
+            if fault["geometry"]:
+                fault["geometry"] = json.loads(fault["geometry"])
 
-    return faults
+            faults.append(fault)
+
+        return faults
 
 
 def get_earthquake_by_id(quake_id: str):

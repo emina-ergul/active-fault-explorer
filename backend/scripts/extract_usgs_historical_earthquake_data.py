@@ -9,12 +9,12 @@ output_dir.mkdir(parents=True, exist_ok=True)
 
 
 def get_earthquake_data_by_year():
-    for year in range(2024, datetime.now().year):
+    for year in range(2010, datetime.now().year):
         params = {
             "format": "geojson",
             "starttime": f"{year}-01-01",
             "endtime": f"{year}-12-31",
-            "minmagnitude": 5.0,
+            "minmagnitude": 3.5,
             "orderby": "time",
             "limit": 20000,
         }

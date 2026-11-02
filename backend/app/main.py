@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from backend.app.endpoints import earthquake_endpoints, fault_endpoints
+from app.endpoints import earthquake_endpoints, fault_endpoints
 
 app = FastAPI(title="Active Fault Explorer API")
 

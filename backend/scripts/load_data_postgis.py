@@ -1,17 +1,17 @@
-from backend.database.init_db import engine
+from database.init_db import engine
 import geopandas as gpd
 import shapely
 
 
-def load_earthquakes():
-    gdf = gpd.read_file("backend/data/processed/earthquakes/earthquakes.geojson")
+def load_earthquake_data():
+    gdf = gpd.read_file("data/processed/earthquakes/earthquakes.geojson")
     gdf = gdf.to_crs(4326)
     print("Loading earthquake data into PostGIS...")
     gdf.to_postgis(name="earthquakes", con=engine, if_exists="append")
 
 
-def load_faults():
-    gdf = gpd.read_file("backend/data/processed/faults/faults.geojson")
+def load_fault_data():
+    gdf = gpd.read_file("data/processed/faults/faults.geojson")
     gdf = gdf.to_crs(4326)
 
     gdf["geometry"] = gdf["geometry"].apply(
@@ -25,8 +25,3 @@ def load_faults():
         if_exists="replace",
         index=False,
     )
-
-
-if __name__ == "__main__":
-    load_earthquakes()
-    load_faults()

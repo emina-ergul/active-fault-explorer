@@ -2,7 +2,7 @@ import json
 import datetime
 from datetime import timezone
 from sqlalchemy import text
-from backend.database.init_db import engine
+from database.init_db import engine
 
 
 def get_all_earthquakes(

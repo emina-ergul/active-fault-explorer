@@ -1,4 +1,4 @@
-from backend.queries.queries import get_all_faults, get_fault_by_id
+from queries.queries import get_all_faults, get_fault_by_id
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
 

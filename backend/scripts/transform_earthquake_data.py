@@ -4,7 +4,7 @@ from shapely.geometry import Point
 import geopandas as gpd
 import json
 
-raw_dir = Path("backend/data/raw/earthquakes/")
+raw_dir = Path("data/raw/earthquakes/")
 raw_dir.parent.mkdir(parents=True, exist_ok=True)
 
 
@@ -48,11 +48,7 @@ def transform_earthquake_data():
 
         gdf = gpd.GeoDataFrame(transformed_data, geometry="geometry", crs="EPSG:4326")
 
-        output_file = Path("backend/data/processed/earthquakes/earthquakes.geojson")
+        output_file = Path("data/processed/earthquakes/earthquakes.geojson")
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
         gdf.to_file(output_file, driver="GeoJSON")
-
-
-if __name__ == "__main__":
-    transform_earthquake_data()

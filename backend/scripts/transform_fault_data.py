@@ -37,7 +37,7 @@ def transform_slip_rates(rates):
 def transform_fault_data():
     transformed_data = []
 
-    gem_data = gpd.read_file("backend/data/gem/geojson/gem_active_faults.geojson")
+    gem_data = gpd.read_file("data/gem/geojson/gem_active_faults.geojson")
     gem_data = gem_data.to_crs(epsg=4326)
 
     gem_data = gem_data[
@@ -87,11 +87,7 @@ def transform_fault_data():
 
     gdf = gpd.GeoDataFrame(transformed_data, geometry="geometry", crs="EPSG:4326")
 
-    output_file = Path("backend/data/processed/faults/faults.geojson")
+    output_file = Path("data/processed/faults/faults.geojson")
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
     gdf.to_file(output_file, driver="GeoJSON")
-
-
-if __name__ == "__main__":
-    transform_fault_data()

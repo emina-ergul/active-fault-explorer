@@ -1,9 +1,9 @@
 import datetime
 
-from backend.queries.queries import (
+from queries.queries import (
     get_all_earthquakes,
     get_earthquake_by_id,
-    get_all_quakes_within_fault_distance,
+    # get_all_quakes_within_fault_distance,
 )
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException

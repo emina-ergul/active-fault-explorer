@@ -4,11 +4,11 @@ from datetime import datetime
 import requests
 
 api_url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
-output_dir = Path("backend/data/raw/earthquakes")
+output_dir = Path("data/raw/earthquakes")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 
-def get_earthquake_data_by_year():
+def extract_earthquake_data_by_year():
     for year in range(2010, datetime.now().year):
         params = {
             "format": "geojson",
@@ -33,6 +33,3 @@ def get_earthquake_data_by_year():
         except Exception as e:
             error = f"Failed to fetch data for year {year}: {res.status_code}: {e}"
             raise ValueError(error)
-
-
-get_earthquake_data_by_year()

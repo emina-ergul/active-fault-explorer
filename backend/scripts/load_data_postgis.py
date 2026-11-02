@@ -7,7 +7,7 @@ def load_earthquake_data():
     gdf = gpd.read_file("data/processed/earthquakes/earthquakes.geojson")
     gdf = gdf.to_crs(4326)
     print("Loading earthquake data into PostGIS...")
-    gdf.to_postgis(name="earthquakes", con=engine, if_exists="append")
+    gdf.to_postgis(name="earthquakes", con=engine, if_exists="replace", index=False)
 
 
 def load_fault_data():

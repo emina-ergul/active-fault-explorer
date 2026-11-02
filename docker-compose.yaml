@@ -10,6 +10,53 @@ services:
       - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d seismic"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+  etl:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fault_explorer_etl
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@database:5432/seismic
+    command: >
+      conda run --no-capture-output
+      -n active-fault-explorer
+      python -m scripts.run_etl
+    depends_on:
+      database:
+          condition: service_healthy
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fault_explorer_backend
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@database:5432/seismic
+    ports:
+      - 8000:8000
+    depends_on:
+      database:
+          condition: service_healthy
+      etl:
+          condition: service_completed_successfully
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fault_explorer_frontend
+    ports:
+      - 5173:5173
+    environment:
+      VITE_BACKEND_URL: http://localhost:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 volumes:
   postgres_data:

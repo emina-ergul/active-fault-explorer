@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
-  Marker,
   Popup,
   GeoJSON,
   useMapEvents,
+  CircleMarker,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -38,6 +38,48 @@ type Fault = {
     type: "LineString";
     coordinates: [number, number][];
   };
+};
+
+const slipTypeColors: Record<string, string> = {
+  // Strike-slip types (lateral)
+  "Strike-Slip": "#5dff57",
+
+  Dextral: "#5dff57",
+  Dextral_Transform: "#5dff57",
+
+  Sinistral: "#5dff57",
+  Sinistral_Transform: "#5dff57",
+
+  // normal
+  Normal: "#4ae4ff",
+
+  // compression types
+  Reverse: "#FB923C",
+  Thrust: "#FB923C",
+  Subduction_Thrust: "#FB923C",
+
+  //oblique slip types
+  Oblique: "#f07cff",
+
+  "Dextral-Reverse": "#f07cff",
+  "Reverse-Dextral": "#f07cff",
+  "Dextral-Normal": "#f07cff",
+  "Normal-Dextral": "#f07cff",
+
+  "Sinistral-Normal": "#f07cff",
+  "Normal-Sinistral": "#f07cff",
+  "Sinistral-Reverse": "#f07cff",
+  "Reverse-Sinistral": "#f07cff",
+
+  "Reverse-Strike-Slip": "#f07cff",
+  "Normal-Strike-Slip": "#f07cff",
+
+  // spreading ridge boundary
+  Spreading_Ridge: "#ff6464",
+
+  //Folds
+  Anticline: "#FBdb24",
+  Syncline: "#fbdb24",
 };
 
 function HandleMapBoundaries() {
@@ -85,24 +127,28 @@ function Map() {
 
   return (
     <MapContainer
+      className="map-container"
       center={[51, 0]}
       zoom={3}
       style={{ height: "600px", width: "100%" }}
     >
       <TileLayer
-        attribution="&copy; OpenStreetMap contributors"
+      className="map-tiles"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      
+
       <HandleMapBoundaries />
 
       {earthquakes.map((earthquake) => (
-        <Marker
+        <CircleMarker
           key={earthquake.id}
-          position={[
+          center={[
             earthquake.geometry.coordinates[1],
             earthquake.geometry.coordinates[0],
           ]}
+          radius={earthquake.magnitude * 2}
+          color="#ec3f18"
         >
           <Popup>
             <strong>{earthquake.place}</strong>
@@ -113,7 +159,7 @@ function Map() {
             <br />
             Time: {new Date(earthquake.time).toLocaleString()}
           </Popup>
-        </Marker>
+        </CircleMarker>
       ))}
 
       {faults.map((fault) => (
@@ -121,7 +167,7 @@ function Map() {
           key={fault.id}
           data={fault.geometry}
           style={{
-            color: "red",
+            color: slipTypeColors[fault.slip_type] || "#6e6f72",
             weight: 2,
           }}
           onEachFeature={(_feature, layer) => {

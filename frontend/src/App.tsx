@@ -8,9 +8,10 @@ function App() {
   return (
     <div>
       <h1>Seismic Explorer</h1>
-      <div>
-      <Map />
-      <Panel />
+      <div className="container" style={{ display: 'flex', flexDirection: 'row' }}>
+        <Panel />
+        <Map />
+      
     </div>
     </div>
     

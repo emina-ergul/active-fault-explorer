@@ -82,6 +82,11 @@ const slipTypeColors: Record<string, string> = {
   Syncline: "#fbdb24",
 };
 
+interface MapProps {
+  earthquakesOn: boolean;
+  faultsOn: boolean;
+}
+
 function HandleMapBoundaries() {
   const map = useMapEvents({
     moveend: () => {
@@ -99,7 +104,7 @@ function HandleMapBoundaries() {
   return null;
 }
 
-function Map() {
+function Map({ earthquakesOn, faultsOn }: MapProps) {
   const [earthquakes, setEarthquakes] = useState<Earthquake[]>([]);
   const [faults, setFaults] = useState<Fault[]>([]);
 
@@ -130,6 +135,9 @@ function Map() {
       className="map-container"
       center={[51, 0]}
       zoom={3}
+      minZoom={2}
+      maxBounds={[[-90, -180], [90, 180]]}
+      maxBoundsViscosity={1}
       style={{ height: "600px", width: "100%" }}
     >
       <TileLayer
@@ -140,7 +148,7 @@ function Map() {
 
       <HandleMapBoundaries />
 
-      {earthquakes.map((earthquake) => (
+      {earthquakesOn && earthquakes.map((earthquake) => (
         <CircleMarker
           key={earthquake.id}
           center={[
@@ -162,7 +170,7 @@ function Map() {
         </CircleMarker>
       ))}
 
-      {faults.map((fault) => (
+      {faultsOn && faults.map((fault) => (
         <GeoJSON
           key={fault.id}
           data={fault.geometry}

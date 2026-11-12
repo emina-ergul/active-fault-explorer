@@ -8,6 +8,8 @@ interface PanelProps {
   setEarthquakesOn: (value: boolean) => void;
   faultsOn: boolean;
   setFaultsOn: (value: boolean) => void;
+  heatmapOn: boolean;
+  setHeatmapOn: (value: boolean) => void;
 }
 
 function Panel({
@@ -15,6 +17,8 @@ function Panel({
   setEarthquakesOn,
   faultsOn,
   setFaultsOn,
+  heatmapOn,
+  setHeatmapOn,
 }: PanelProps) {
   const [collapsed, setCollapsed] = useState(false);
 
@@ -52,6 +56,15 @@ function Panel({
               className="switch"
               checked={faultsOn}
               onCheckedChange={setFaultsOn}
+            />
+          </div>
+
+          <div className="layer-control">
+            <span>Heat map overlay</span>
+            <Switch
+              className="switch"
+              checked={heatmapOn}
+              onCheckedChange={setHeatmapOn}
             />
           </div>
         </div>

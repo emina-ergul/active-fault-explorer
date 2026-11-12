@@ -5,6 +5,14 @@ from sqlalchemy import text
 from database.init_db import engine
 
 
+def get_fault_count():
+    query = text("SELECT COUNT(*) FROM faults")
+
+    with engine.connect() as conn:
+        res = conn.execute(query).fetchone()
+        return res[0]
+
+
 def get_all_earthquakes(
     start_year: str, end_year: str, min_magnitude: float, limit: int
 ):

@@ -32,7 +32,7 @@ function Menubar() {
                 </Card>
                 <Card className="panel">
                     <h2>Fault count</h2>
-                    <span>{faultCount ? faultCount.count : ""}</span>
+                    <span>{faultCount ? faultCount.count.toLocaleString() : ""}</span>
                 </Card>
                 <Card className="panel">
                     <h2>Time window</h2>
